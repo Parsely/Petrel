@@ -3,9 +3,6 @@ package storm.petrel;
 // Adapted from http://joelpm.com/2009/02/05/thrift-reading-thrift-objects-from-disk-with-java.html
 // Original code reads from a file. Changed it to read from a stream.
 import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
