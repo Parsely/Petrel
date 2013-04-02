@@ -24,3 +24,11 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#Eclipse stuff
+jvmpetrel/.classpath
+jvmpetrel/.project
+jvmpetrel/.settings
+
+# JVM builds
+jvmpetrel/target
