@@ -32,3 +32,4 @@ jvmpetrel/.settings
 
 # JVM builds
 jvmpetrel/target
+samples/**/*.jar
