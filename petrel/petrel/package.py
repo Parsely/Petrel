@@ -25,7 +25,7 @@ def add_file_to_jar(jar, directory, script=None, required=True):
         path = os.path.join(directory, script)
     else:
         path = directory
-    
+
     # Use glob() to allow for wildcards, e.g. in manifest.txt.
     path_list = glob.glob(path)
 
@@ -55,7 +55,7 @@ def build_jar(source_jar_path, dest_jar_path, config, venv=None, definition=None
     pip_options = config_yaml.get('petrel.pip_options', '')
 
     module_name, dummy, function_name = definition.rpartition('.')
-    
+
     topology_dir = os.getcwd()
 
     # Make a copy of the input "jvmpetrel" jar. This jar acts as a generic
@@ -66,7 +66,7 @@ def build_jar(source_jar_path, dest_jar_path, config, venv=None, definition=None
         raise ValueError("Error: Destination and source path are the same.")
     shutil.copy(source_jar_path, dest_jar_path)
     jar = zipfile.ZipFile(dest_jar_path, 'a', compression=zipfile.ZIP_DEFLATED)
-    
+
     added_path_entry = False
     try:
         # Add the files listed in manifest.txt to the jar.
@@ -83,12 +83,12 @@ def build_jar(source_jar_path, dest_jar_path, config, venv=None, definition=None
 petrel.user: %s
 petrel.host: %s
 ''' % (getpass.getuser(),socket.gethostname()))
-        
+
         # Also add the topology configuration to the jar.
         with open(config, 'r') as f:
             config_text = f.read()
         add_to_jar(jar, '__topology__.yaml', config_text)
-    
+
         # Call module_name/function_name to populate a Thrift topology object.
         builder = TopologyBuilder()
         module_dir = os.path.abspath(topology_dir)
@@ -212,15 +212,14 @@ unlock()            { _lock u; }   # drop a lock
 if [ $CREATE_VENV -ne 0 ]; then
     # On Mac OS X, the "flock" command is not available
     create_new=1
-    if [ "$has_flock" -eq "0" ]
-    then 
-        if [ -d $VENV ];then
+    if [ "$has_flock" -eq "0" ]; then
+        if [ -d $VENV ]; then
             echo "Using existing venv: $VENV" >>$LOG 2>&1
             shlock
             source $VENV/bin/activate >>$LOG 2>&1
             unlock
             create_new=0
-        elif ! exlock_now;then
+        elif [ ! exlock_now ]; then
             echo "Using existing venv: $VENV" >>$LOG 2>&1
             shlock
             source $VENV/bin/activate >>$LOG 2>&1
@@ -228,8 +227,7 @@ if [ $CREATE_VENV -ne 0 ]; then
             create_new=0
         fi
     fi
-    if [ "$create_new" -eq "1" ]
-    then
+    if [ "$create_new" -eq "1" ]; then
         echo "Creating new venv: $VENV" >>$LOG 2>&1
         virtualenv --system-site-packages --python python$PYVER $VENV >>$VENV_LOG 2>&1
         source $VENV/bin/activate >>$VENV_LOG 2>&1
@@ -248,8 +246,7 @@ if [ $CREATE_VENV -ne 0 ]; then
         if [ -f ./setup.sh ]; then
             /bin/bash ./setup.sh $CREATE_VENV >>$VENV_LOG 2>&1
         fi
-        if [ "$has_flock" -eq "0" ]
-        then 
+        if [ "$has_flock" -eq "0" ]; then
             unlock
         fi
     fi
@@ -257,19 +254,21 @@ else
     # This is a prototype feature where the topology specifies a virtualenv
     # that already exists. Could be useful in some cases, since this means the
     # topology is up and running more quickly.
-    if ! exlock_now;then
-        echo "Using existing venv: $VENV" >>$LOG 2>&1
-        shlock
-        source $VENV/bin/activate >>$LOG 2>&1
-        unlock
-    else
-        echo "Updating pre-existing venv: $VENV" >>$LOG 2>&1
-        source $VENV/bin/activate >>$LOG 2>&1
-        easy_install -U petrel-*-py$PYVER.egg >>$VENV_LOG 2>&1
-        if [ -f ./setup.sh ]; then
-            /bin/bash ./setup.sh $CREATE_VENV >>$VENV_LOG 2>&1
+    if [ "$has_flock" -eq "0" ]; then
+        if ! exlock_now;then
+            echo "Using existing venv: $VENV" >>$LOG 2>&1
+            shlock
+            source $VENV/bin/activate >>$LOG 2>&1
+            unlock
+        else
+            echo "Updating pre-existing venv: $VENV" >>$LOG 2>&1
+            source $VENV/bin/activate >>$LOG 2>&1
+            easy_install -U petrel-*-py$PYVER.egg >>$VENV_LOG 2>&1
+            if [ -f ./setup.sh ]; then
+                /bin/bash ./setup.sh $CREATE_VENV >>$VENV_LOG 2>&1
+            fi
+            unlock
         fi
-        unlock
     fi
 fi
 
