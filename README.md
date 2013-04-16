@@ -18,65 +18,60 @@ Petrel offers some important improvements over the storm.py module provided with
 Topology definition
 ===================
 
-<pre>
-import randomsentence
-import splitsentence
-import wordcount
+    import randomsentence
+    import splitsentence
+    import wordcount
 
-def create(builder):
-    builder.setSpout("spout", randomsentence.RandomSentenceSpout(), 1)
-    builder.setBolt("split", splitsentence.SplitSentenceBolt(), 1).shuffleGrouping("spout")
-    builder.setBolt("count", wordcount.WordCountBolt(), 1).fieldsGrouping("split", ["word"])
-</pre>
+    def create(builder):
+        builder.setSpout("spout", randomsentence.RandomSentenceSpout(), 1)
+        builder.setBolt("split", splitsentence.SplitSentenceBolt(), 1).shuffleGrouping("spout")
+        builder.setBolt("count", wordcount.WordCountBolt(), 1).fieldsGrouping("split", ["word"])
+
 
 setup.sh
 --------
 
 A topology may optionally include a setup.sh script. If present, Petrel will execute it before launching the spout or bolt. Typically this script is used for installing additional Python libraries. Here's an example setup.sh script:
 
-<pre>
-set -e
+    set -e
 
-# $1 will be non-zero if creating a new virtualenv, zero if reusing an existing one.
-if [ $1 -ne 0 ]; then
-    for f in Shapely==1.2.15 pyproj==1.9.0 pycassa==1.7.0 \
-             configobj==4.7.2 greenlet==0.4.0 gevent==1.0b3
-    do
-        echo "Installing $f"
-        pip install $f
-    done
-fi
-</pre>
+    # $1 will be non-zero if creating a new virtualenv, zero if reusing an existing one.
+    if [ $1 -ne 0 ]; then
+        for f in Shapely==1.2.15 pyproj==1.9.0 pycassa==1.7.0 \
+                 configobj==4.7.2 greenlet==0.4.0 gevent==1.0b3
+        do
+            echo "Installing $f"
+            pip install $f
+        done
+    fi
 
 Topology Configuration
 ----------------------
 
 Petrel's "--config" parameter accepts a YAML file with standard Storm configuration options. Petre also provides some Petrel-specific settings. See below.
 
-```
-topology.message.timeout.secs: 150
-topology.ackers: 1
-topology.workers: 5
-topology.max.spout.pending: 1
-worker.childopts: "-Xmx4096m"
-topology.worker.childopts: "-Xmx4096m"
+    topology.message.timeout.secs: 150
+    topology.ackers: 1
+    topology.workers: 5
+    topology.max.spout.pending: 1
+    worker.childopts: "-Xmx4096m"
+    topology.worker.childopts: "-Xmx4096m"
 
 # Controls how Petrel installs its own dependencies, e.g. simplejson, thrift, PyYAML.
-petrel.pip_options: "--no-index -f http://10.255.3.20/pip/"
+    
+    petrel.pip_options: "--no-index -f http://10.255.3.20/pip/"
 
 # If you prefer, you can configure parallelism here instead of in setSpout() or
 # setBolt().
-petrel.parallelism.splitsentence: 1
-```
+    
+    petrel.parallelism.splitsentence: 1
 
 Building and submitting topologies
 ==================================
 
 Use the following command to package and submit a topology to Storm:
 
-<pre>
-petrel submit --sourcejar ../../jvmpetrel/target/storm-petrel-*-SNAPSHOT.jar --config localhost.yaml wordcount
-</pre>
+    petrel submit --sourcejar ../../jvmpetrel/target/storm-petrel-*-SNAPSHOT.jar --config localhost.yaml wordcount
 
 This command builds and submits a topology.
 
@@ -108,9 +103,7 @@ Monitoring
 
 Petrel provides a "status" command which lists the active topologies and tasks on a cluster. You can optionally filter by task name and Storm port (i.e. worker slot) number.
 
-<pre>
-petrel status 10.255.1.58
-</pre>
+    petrel status 10.255.1.58
 
 Logging
 =======
@@ -119,25 +112,22 @@ Petrel redirects stdout and stderr to the Python logger.
 
 When Storm is running on a cluster, it can be nice to send certain messages (e.g. errors) to a central machine. Petrel provides the NIMBUS_HOST environment variable to help support this. For example, the following configuration declares a log handler which sends any worker log messages INFO or higher to the Nimbus host.
 
-<pre>
-[handler_hand02]
-class=handlers.SysLogHandler
-level=INFO
-formatter=form02
-args=((os.getenv('NIMBUS_HOST') or 'localhost',handlers.SYSLOG_UDP_PORT),handlers.SysLogHandler.LOG_USER)
-</pre>
+
+    [handler_hand02]
+    class=handlers.SysLogHandler
+    level=INFO
+    formatter=form02
+    args=((os.getenv('NIMBUS_HOST') or 'localhost',handlers.SYSLOG_UDP_PORT),handlers.SysLogHandler.LOG_USER)
 
 Petrel also has a "StormHandler" class sends messages to the Storm logger. This feature is currently not "released", but can be enabled by uncommenting the following line in petrel/util.py:
 
-<pre>
-#logging.StormHandler = StormHandler
-</pre>
+    #logging.StormHandler = StormHandler
 
 
 Storm Logging
 =============
 
-When running Petrel applications in Storm's local mode, the console output is a mixture of Petrel and Storm logging output. This results in a lot of messages and can be hard to follow. You can control the Storm logging output by using Petrel's "--extrastormcp" option. Any directories specified to this option will be prepended to Storm's Java class path.
+When running Petrel applications in Storm's local mode, the console output is a mixture of Petrel and Storm logging output. This results in a lot of messages and can be hard to follow. You can control the Storm logging output by using Petrel's `"--extrastormcp"` option. Any directories specified to this option will be prepended to Storm's Java class path.
 
 For example, create a file log4j.properties in the samples/wordcount directory, with the following contents:
 
@@ -158,7 +148,7 @@ log4j.logger.com.netflix=ERROR
 
 Now run "petrel submit" like this:
 
-```petrel submit --extrastormcp=`pwd` --config=topology.yaml ```
+    petrel submit --extrastormcp=`pwd` --config=topology.yaml
 
 With this setting, the apache, backtype, and netflix logs will be configured at ERROR level, suppressing most of the logger messages from Storm.
 
@@ -167,25 +157,23 @@ Testing
 
 Petrel provides a "mock" module which mocks some of Storm's features. This makes it possible to test individual components and simple topologies in pure Python, without relying on the Storm runtime.
 
-<pre>
-def test():
-    bolt = WordCountBolt()
+    def test():
+        bolt = WordCountBolt()
     
-    from petrel import mock
-    from randomsentence import RandomSentenceSpout
-    mock_spout = mock.MockSpout(RandomSentenceSpout.declareOutputFields(), [
-        ['word'],
-        ['other'],
-        ['word'],
-    ])
+        from petrel import mock
+        from randomsentence import RandomSentenceSpout
+        mock_spout = mock.MockSpout(RandomSentenceSpout.declareOutputFields(), [
+            ['word'],
+            ['other'],
+            ['word'],
+        ])
     
-    result = mock.run_simple_topology(None, [mock_spout, bolt], result_type=mock.LIST)
-    assert_equal(2, bolt._count['word'])
-    assert_equal(1, bolt._count['other'])
-    assert_equal([['word', 1], ['other', 1], ['word', 2]], result[bolt])
-</pre>
+        result = mock.run_simple_topology(None, [mock_spout, bolt], result_type=mock.LIST)
+        assert_equal(2, bolt._count['word'])
+        assert_equal(1, bolt._count['other'])
+        assert_equal([['word', 1], ['other', 1], ['word', 2]], result[bolt])
 
-In Petrel terms, a "simple" topology is one which only outputs to the default stream and has no branches or loops. run_simple_topology() assumes the first component in the list is a spout, and it passes the output of each component to the next component in the list.
+In Petrel terms, a "simple" topology is one which only outputs to the default stream and has no branches or loops. `run_simple_topology()` assumes the first component in the list is a spout, and it passes the output of each component to the next component in the list.
 
 License
 =======
@@ -203,7 +191,7 @@ This will print the version of Storm active on your system, a number such as "0.
 
 Install the egg:
 
-easy_install petrel*.egg
+    easy_install petrel*.egg
 
 This will download a few dependencies and then print a message like:
 
