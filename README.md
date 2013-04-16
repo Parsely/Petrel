@@ -57,13 +57,10 @@ Petrel's "--config" parameter accepts a YAML file with standard Storm configurat
     worker.childopts: "-Xmx4096m"
     topology.worker.childopts: "-Xmx4096m"
 
-# Controls how Petrel installs its own dependencies, e.g. simplejson, thrift, PyYAML.
-    
+    # Controls how Petrel installs its own dependencies, e.g. simplejson, thrift, PyYAML.
     petrel.pip_options: "--no-index -f http://10.255.3.20/pip/"
 
-# If you prefer, you can configure parallelism here instead of in setSpout() or
-# setBolt().
-    
+    # If you prefer, you can configure parallelism here instead of in setSpout() or setBolt().
     petrel.parallelism.splitsentence: 1
 
 Building and submitting topologies
@@ -131,20 +128,18 @@ When running Petrel applications in Storm's local mode, the console output is a 
 
 For example, create a file log4j.properties in the samples/wordcount directory, with the following contents:
 
-```
-# Set root logger level to DEBUG and its only appender to A1.
-log4j.rootLogger=DEBUG, A1
-#
-## A1 is set to be a ConsoleAppender
-log4j.appender.A1=org.apache.log4j.ConsoleAppender
-#
-## A1 uses PatternLayout.
-log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-log4j.appender.A1.layout.ConversionPattern=[%d{dd MMM yyyy HH:mm:ss}] [%t] %-5p %c %x - %m%n
-log4j.logger.org.apache=ERROR
-log4j.logger.backtype=ERROR
-log4j.logger.com.netflix=ERROR
-```
+    # Set root logger level to DEBUG and its only appender to A1.
+    log4j.rootLogger=DEBUG, A1
+    #
+    ## A1 is set to be a ConsoleAppender
+    log4j.appender.A1=org.apache.log4j.ConsoleAppender
+    #
+    ## A1 uses PatternLayout.
+    log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+    log4j.appender.A1.layout.ConversionPattern=[%d{dd MMM yyyy HH:mm:ss}] [%t] %-5p %c %x - %m%n
+    log4j.logger.org.apache=ERROR
+    log4j.logger.backtype=ERROR
+    log4j.logger.com.netflix=ERROR
 
 Now run "petrel submit" like this:
 
